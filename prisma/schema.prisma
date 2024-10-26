@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Calendar_Event {
+  Calendar_Event_ID          Int                          @id(map: "PK__Calendar__36766E78D7EBA6FF") @default(autoincrement())
+  Event_Description          String?                      @db.VarChar(500)
+  Start_Datetime             DateTime                     @db.DateTime
+  End_Datetime               DateTime                     @db.DateTime
+  Event_Link                 String?                      @db.VarChar(700)
+  Event_Link_Name            String?                      @db.VarChar(500)
+  Is_Active                  Boolean
+  Created_Datetime           DateTime                     @db.DateTime
+  Updated_Datetime           DateTime?                    @db.DateTime
+  Event_Category             Event_Category[]
+  Event_Category_Subcategory Event_Category_Subcategory[]
+  Event_Location             Event_Location[]
+}
+
+model Calendar_Location {
+  Location_ID          Int              @id(map: "PK__Calendar__D2BA00C20F50791D") @default(autoincrement())
+  Location_Description String           @db.VarChar(500)
+  Is_Onsite            Boolean
+  Created_Datetime     DateTime         @db.DateTime
+  Updated_Datetime     DateTime?        @db.DateTime
+  Event_Location       Event_Location[]
+}
+
+model Category {
+  Category_ID                                 Int                    @id(map: "PK__Category__6DB38D4E95DCABFF") @default(autoincrement())
+  Category_Description                        String                 @db.VarChar(300)
+  Updated_Datetime                            DateTime?              @db.DateTime
+  Created_Datetime                            DateTime               @db.DateTime
+  Background_Color_ID                         Int
+  Text_Color_ID                               Int
+  Colors_Category_Background_Color_IDToColors Colors                 @relation("Category_Background_Color_IDToColors", fields: [Background_Color_ID], references: [Color_ID], onUpdate: NoAction, map: "FK_BACKGROUND_COLOR")
+  Colors_Category_Text_Color_IDToColors       Colors                 @relation("Category_Text_Color_IDToColors", fields: [Text_Color_ID], references: [Color_ID], onUpdate: NoAction, map: "FK_TEXT_COLOR_ID")
+  Category_Subcategory                        Category_Subcategory[]
+  Event_Category                              Event_Category[]
+}
+
+model Category_Subcategory {
+  Category_Subcategory_ID    Int                          @id(map: "PK__Category__E6BA732F205B468C") @default(autoincrement())
+  Category_ID                Int
+  Subcategory_ID             Int
+  Created_Datetime           DateTime                     @db.DateTime
+  Updated_Datetime           DateTime                     @db.DateTime
+  Category                   Category                     @relation(fields: [Category_ID], references: [Category_ID], onUpdate: NoAction, map: "FK_CSCATEGORY")
+  Subcategory                Subcategory                  @relation(fields: [Subcategory_ID], references: [Subcategory_ID], onUpdate: NoAction, map: "FK_CSSUBCATEGORY")
+  Event_Category_Subcategory Event_Category_Subcategory[]
+}
+
+model Colors {
+  Color_ID                                            Int           @id(map: "PK__Colors__795F1D74AD4732EC") @default(autoincrement())
+  Color_Code                                          String        @db.NVarChar(50)
+  R                                                   Int
+  G                                                   Int
+  B                                                   Int
+  Color_Scale                                         String        @db.VarChar(200)
+  Color_Description                                   String        @db.VarChar(400)
+  Created_Datetime                                    DateTime      @db.DateTime
+  Updated_Datetime                                    DateTime      @db.DateTime
+  Category_Category_Background_Color_IDToColors       Category[]    @relation("Category_Background_Color_IDToColors")
+  Category_Category_Text_Color_IDToColors             Category[]    @relation("Category_Text_Color_IDToColors")
+  Subcategory_Subcategory_Background_Color_IDToColors Subcategory[] @relation("Subcategory_Background_Color_IDToColors")
+  Subcategory_Subcategory_Text_Color_IDToColors       Subcategory[] @relation("Subcategory_Text_Color_IDToColors")
+}
+
+model Event_Category {
+  Event_Category_ID          Int                          @id(map: "PK__Event_Ca__8A6FE3F59AE20884") @default(autoincrement())
+  Calendar_Event_ID          Int
+  Category_ID                Int
+  Created_Datetime           DateTime                     @db.DateTime
+  Updated_Datetime           DateTime?                    @db.DateTime
+  Calendar_Event             Calendar_Event               @relation(fields: [Calendar_Event_ID], references: [Calendar_Event_ID], onUpdate: NoAction, map: "FK_ECCALENDAR_EVENT_ID")
+  Category                   Category                     @relation(fields: [Category_ID], references: [Category_ID], onUpdate: NoAction, map: "FK_ECCATEGORY_ID")
+  Event_Category_Subcategory Event_Category_Subcategory[]
+}
+
+model Event_Category_Subcategory {
+  Event_Category_Subcategory_ID Int                  @id(map: "PK__Event_Ca__C642BB1BEFCDFE4A") @default(autoincrement())
+  Calendar_Event_ID             Int
+  Event_Category_ID             Int
+  Category_Subcategory_ID       Int
+  Created_Datetime              DateTime             @db.DateTime
+  Updated_Datetime              DateTime?            @db.DateTime
+  Calendar_Event                Calendar_Event       @relation(fields: [Calendar_Event_ID], references: [Calendar_Event_ID], onUpdate: NoAction, map: "FK_ECSCALENDAR_EVENT_ID")
+  Category_Subcategory          Category_Subcategory @relation(fields: [Category_Subcategory_ID], references: [Category_Subcategory_ID], onUpdate: NoAction, map: "FK_ECSCATEGORY_SUBCATEGORY_ID")
+  Event_Category                Event_Category       @relation(fields: [Event_Category_ID], references: [Event_Category_ID], onUpdate: NoAction, map: "FK_ECSEVENT_CATEGORY_ID")
+}
+
+model Event_Location {
+  Event_Location    Int               @id(map: "PK__Event_Lo__603526BFE5ED3D78") @default(autoincrement())
+  Calendar_Event_ID Int
+  Location_ID       Int
+  Created_Datetime  DateTime          @db.DateTime
+  Updated_Datetime  DateTime?         @db.DateTime
+  Calendar_Event    Calendar_Event    @relation(fields: [Calendar_Event_ID], references: [Calendar_Event_ID], onUpdate: NoAction, map: "FK_ELCALENDAR_EVENT_ID")
+  Calendar_Location Calendar_Location @relation(fields: [Location_ID], references: [Location_ID], onUpdate: NoAction, map: "FK_ELLOCATION_ID")
+}
+
+model Subcategory {
+  Subcategory_ID                                 Int                    @id(map: "PK__Subcateg__B59950BCE40628BC") @default(autoincrement())
+  Subcategory_Description                        String                 @db.VarChar(500)
+  Created_Datetime                               DateTime               @db.DateTime
+  Updated_Datetime                               DateTime               @db.DateTime
+  Background_Color_ID                            Int
+  Text_Color_ID                                  Int
+  Category_Subcategory                           Category_Subcategory[]
+  Colors_Subcategory_Background_Color_IDToColors Colors                 @relation("Subcategory_Background_Color_IDToColors", fields: [Background_Color_ID], references: [Color_ID], onUpdate: NoAction, map: "FK_SUBCATEGORY_BACKGROUND_COLOR")
+  Colors_Subcategory_Text_Color_IDToColors       Colors                 @relation("Subcategory_Text_Color_IDToColors", fields: [Text_Color_ID], references: [Color_ID], onUpdate: NoAction, map: "FK_SUBCATEGORY_TEXT_COLOR")
+}
